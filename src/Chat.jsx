@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import * as webllm from '@mlc-ai/web-llm';
 import { Button, CircularProgress, FormControl, InputLabel,MenuItem,Select, TextField } from "@mui/material";
 
@@ -12,10 +12,9 @@ const Chat = () => {
     const [stats,setStats] = useState("");
     const [availableModels,setAvailableModels] = useState([]);
     const [selectedModel,setSelectedModel] = useState("TinyLlama-1.1B-Chat-v0.4-q4f32_1-MLC-1k");
+    const [initProgress,setInitProgress] = useState('')
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const engine = new webllm.MLCEngine();
-    // console.log(engine);
+    const engine = useRef(null);
 
     useEffect(()=>{
       const models = webllm.prebuiltAppConfig.model_list.map((m) => 
@@ -27,18 +26,28 @@ const Chat = () => {
     const initializeEngine = useCallback(async ()=>{
       setIsLoading(true);
       setIsModelLoaded(false);
-      const config = {
-        temperature: 1.0,
-        top_p: 1
-      };
+      setInitProgress('Initializing...');
+
+      const config = {temperature: 1.0, top_p: 1};
       try {
-        await engine.reload(selectedModel,config);
+        if(!engine.current){
+          engine.current = new webllm.MLCEngine();
+          // console.log(engine.current);
+          engine.current.setInitProgressCallback((report) => {
+            console.log("Initialize",report.progress);
+            setInitProgress(report.text);
+          })
+        }
+        await engine.current.reload(selectedModel,config);
         setIsModelLoaded(true);
+        setInitProgress('model loaded successfully')
       } catch (error) {
         console.error("Failed ot load the model",error);
+        setInitProgress('Failed to load the model')
       }
       setIsLoading(false)
-    },[selectedModel,engine])
+    },[selectedModel])
+    //[selectedModel,engine]
     // console.log(initializeEngine());
 
     useEffect(()=>{
@@ -56,40 +65,58 @@ const Chat = () => {
       const aiMessage = {content:"typing...",role:"assistant"};
       setMessages((prevMessages) => [...prevMessages,aiMessage]);
 
-      const onFinishGenerating = async (finalMessage) => {
+      const updatedMessages = [...messages,userMessage]
+
+      const onFinishGenerating = async (finalMessage,usage) => {
         setMessages((prevMessages)=>{
           const newMessages = [...prevMessages]
           newMessages[newMessages.length-1] = {content: finalMessage,role:"assistant"};
           return newMessages;
         });
         setIsLoading(false);
-        const statsText = await engine.runtimeStatsText();
-        console.log(statsText);
-        setStats(statsText);
+        setStats(JSON.stringify(usage))
+
+        // if(engine.current.runtimeStatsText){
+        //   const statsText = await engine.current.runtimeStatsText();
+        //   console.log(statsText);
+        //   setStats(statsText);
+        // }else{
+        //   console.error('runtimestats method is not available on the engine');
+        // } // remove usage and stream option and use this runtimestats method snippet
       };
+
       try {
-        const completion = await engine.chat.completions.create({
+        const completion = await engine.current.chat.completions.create({
           stream:true,
-          messages,
+          messages:updatedMessages,
+          stream_options: {include_usage:true}
         })
         console.log(completion);
 
         let currMessage = "";
+        let usage = null;
         for await(const chunk of completion){
+          console.log(chunk);
           const currDelta = chunk.choices[0].delta.content;
+          usage = chunk.usage;
           console.log(currDelta);
           if(currDelta){
             currMessage += currDelta;
             console.log(currMessage);
+            setMessages((prevMessages)=>{
+              const newMessages = [...prevMessages];
+              newMessages[newMessages.length-1] = {content:currMessage, role:"assistant"};
+              return newMessages;
+            });
           }
-          setMessages((prevMessages)=>{
-            const newMessages = [...prevMessages];
-            newMessages[newMessages.length-1] = {content:currMessage, role:"assistant"};
-            return newMessages;
-          });
         }
-        const finalMessage = await engine.getMessage();
-        onFinishGenerating(finalMessage);
+
+        // const finalMessage = await engine.getMessage();
+        // onFinishGenerating(finalMessage);
+
+        // onFinishGenerating(currMessage);
+
+        onFinishGenerating(currMessage,usage);
       } catch (error) {
         console.log("Error during message generation",error);
         setIsLoading(false);
@@ -99,7 +126,7 @@ const Chat = () => {
   return (
     <div className="flex flex-col items-center p-4">
         <div className={`mb-4 ${isLoading ? "":"hidden"}`}>
-          { isModelLoaded ? "Model loaded" : "Initializing..."}
+          {initProgress}
         </div>
         <FormControl className="w-full mb-4">
           <InputLabel id="model-selection-label" >Select a model</InputLabel>
