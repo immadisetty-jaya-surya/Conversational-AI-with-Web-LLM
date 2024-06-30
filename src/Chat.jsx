@@ -27,25 +27,25 @@ const settingsReducer = (state,action) =>{
 const initialSettings = {
   temperature: 1.0,
   topP: 1.0,
-  maxTokens: 512,
+  maxTokens: 4000,
   presencePenalty: 0.0,
   frequencyPenalty: 0.0,
   injectSystemPrompts: false,
-  inputTemplate: '',
+  inputTemplate: '{{input}}',
   attachedMessagesCount: 5,
   historyCompressionThreshold: 1000,
-  memoryPrompt: '',
-  sendMemory: false,
-  sendKey: '',
-  theme: 'light',
-  language: 'en',
-  fontSize: 14,
-  autoGenerateTitle: false,
-  sendPreviewBubble: false,
-  hideBuiltinTemplates: false,
-  disableAutoCompletion: false,
-  loggingLevel: 'info',
-  cacheType: 'IndexDB',
+  // memoryPrompt: '',
+  // sendMemory: false,
+  // sendKey: '',
+  // theme: 'light',
+  // language: 'en',
+  // fontSize: 14,
+  // autoGenerateTitle: false,
+  // sendPreviewBubble: false,
+  // hideBuiltinTemplates: false,
+  // disableAutoCompletion: false,
+  // loggingLevel: 'info',
+  // cacheType: 'IndexDB',
 };
 
 const Chat = () => {
@@ -95,27 +95,16 @@ const Chat = () => {
 
       const config = {
         temperature: settings.temperature,
-            top_p: settings.topP,
-            maxTokens: settings.maxTokens,
-            presencePenalty: settings.presencePenalty,
-            frequencyPenalty: settings.frequencyPenalty,
-            injectSystemPrompts: settings.injectSystemPrompts,
-            inputTemplate: settings.inputTemplate,
-            attachedMessagesCount: settings.attachedMessagesCount,
-            historyCompressionThreshold: settings.historyCompressionThreshold,
-            memoryPrompt: settings.memoryPrompt,
-            sendMemory: settings.sendMemory,
-            sendKey: settings.sendKey,
-            theme: settings.theme,
-            language: settings.language,
-            fontSize: settings.fontSize,
-            autoGenerateTitle: settings.autoGenerateTitle,
-            sendPreviewBubble: settings.sendPreviewBubble,
-            hideBuiltinTemplates: settings.hideBuiltinTemplates,
-            disableAutoCompletion: settings.disableAutoCompletion,
-            loggingLevel: settings.loggingLevel,
-            cacheType: settings.cacheType,
+        top_p: settings.topP,
+        maxTokens: settings.maxTokens,
+        presencePenalty: settings.presencePenalty,
+        frequencyPenalty: settings.frequencyPenalty,
+        injectSystemPrompts: settings.injectSystemPrompts,
+        inputTemplate: settings.inputTemplate,
+        attachedMessagesCount: settings.attachedMessagesCount,
+        historyCompressionThreshold: settings.historyCompressionThreshold,
       };
+
       try {
         if(!engine.current){
           engine.current = new webllm.MLCEngine();
@@ -184,16 +173,18 @@ const Chat = () => {
         let currMessage = "";
         let usage = null;
         for await(const chunk of completion){
-          const currDelta = chunk.choices[0].delta.content;
-          usage = chunk.usage;
-          if(currDelta){
-            currMessage += currDelta;
-            // setMessages((prevMessages)=>{
-            //   const newMessages = [...prevMessages];
-            //   newMessages[newMessages.length-1] = {content:currMessage, role:"assistant"};
-            //   return newMessages;
-            // });
-            dispatchMessages({type:'UPDATE_LAST_MESSAGE',message:{content:currMessage, role:"assistant"} })
+          if(chunk.choices && chunk.choices[0] && chunk.choices[0].delta){
+            const currDelta = chunk.choices[0].delta.content;
+            usage = chunk.usage;
+            if(currDelta){
+              currMessage += currDelta;
+              // setMessages((prevMessages)=>{
+              //   const newMessages = [...prevMessages];
+              //   newMessages[newMessages.length-1] = {content:currMessage, role:"assistant"};
+              //   return newMessages;
+              // });
+              dispatchMessages({type:'UPDATE_LAST_MESSAGE',message:{content:currMessage, role:"assistant"} })
+          }
           }
         }
 
@@ -300,7 +291,7 @@ const Chat = () => {
                 </div>
             </div>
 
-            <div id="chat-stats" className={`mt-4 text-sm text-gray-500 ${stats ? "" : "hidden"}`}>
+            <div id="chat-stats" className={`flex justify-center mt-4 text-sm text-gray-500 ${stats ? "" : "hidden"}`}>
               {stats}
             </div>
         </div>

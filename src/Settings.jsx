@@ -1,5 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField } from "@mui/material";
-
+import { Button, Dialog, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField, Typography } from "@mui/material";
+import en from "./locales/en";
 // eslint-disable-next-line react/prop-types
 const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}) => {
 	const handleChange = (e) => {
@@ -32,17 +32,19 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Temperature</InputLabel>
+            <InputLabel>{en.Settings.Temperature.Title}</InputLabel>
+            <InputLabel>{en.Settings.Temperature.SubTitle}</InputLabel>
             <TextField 
               type="number" 
               name="temperature" 
-              value={settings.temperature}
+              value={settings.Temperature}
               onChange={handleChange}
               inputProps={{step: 0.1, min:0,max:1}}
               />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Top P</InputLabel>
+            <InputLabel>{en.Settings.TopP.Title}</InputLabel>
+            <InputLabel>{en.Settings.TopP.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="maxTokens" 
@@ -52,7 +54,8 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
             />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Max Tokes</InputLabel>
+            <InputLabel>{en.Settings.MaxTokens.Title}</InputLabel>
+            <InputLabel>{en.Settings.MaxTokens.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="maxTokens" 
@@ -62,7 +65,8 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
             />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Presence Penalty</InputLabel>
+            <InputLabel>{en.Settings.PresencePenalty.Title}</InputLabel>
+            <InputLabel>{en.Settings.PresencePenalty.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="presencePenalty" 
@@ -72,7 +76,8 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
               />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Frequency Penalty</InputLabel>
+            <InputLabel>{en.Settings.FrequencyPenalty.Title}</InputLabel>
+            <InputLabel>{en.Settings.FrequencyPenalty.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="frequencyPenalty" 
@@ -81,18 +86,25 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
               inputProps={{step: 0.1, min:0, max:2}}
               />
           </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-              checked={settings.injectSystemPrompts}
-              onChange={handleChange}
+          <FormControl component='fieldset' fullWidth margin="normal">
+            <Typography >
+              <InputLabel>{en.Settings.InjectSystemPrompts.Title}</InputLabel>
+              <InputLabel>{en.Settings.InjectSystemPrompts.SubTitle}</InputLabel>
+            </Typography>
+            <FormControlLabel
+              labelPlacement="start"
+              control={
+                <Switch
+                checked={settings.injectSystemPrompts}
+                onChange={handleChange}
                 name="injectSystemPrompts"
-              />
-            }
-            label="Inject System Prompts"
-          />
+                />
+              }
+            />
+          </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Input Template</InputLabel>
+            <InputLabel>{en.Settings.InputTemplate.Title}</InputLabel>
+            <InputLabel>{en.Settings.InputTemplate.SubTitle}</InputLabel>
             <TextField
               name="inputTemplate" 
               value={settings.inputTemplate}
@@ -100,7 +112,8 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
               />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>Attached Messages Count</InputLabel>
+            <InputLabel>{en.Settings.HistoryCount.Title}</InputLabel>
+            <InputLabel>{en.Settings.HistoryCount.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="attachedMessagesCount" 
@@ -110,7 +123,8 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
               />
           </FormControl>
           <FormControl fullWidth margin="normal">
-            <InputLabel>History Compression Threshold</InputLabel>
+            <InputLabel>{en.Settings.CompressThreshold.Title}</InputLabel>
+            <InputLabel>{en.Settings.CompressThreshold.SubTitle}</InputLabel>
             <TextField
               type="number" 
               name="historyCompressionThreshold" 
@@ -119,125 +133,7 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
               inputProps={{step:1,min:1}}
             />
           </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Memory Prompt</InputLabel>
-            <TextField
-              name="memoryPrompt" 
-              value={settings.memoryPrompt}
-              onChange={handleChange}
-              />
-          </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-              checked={settings.sendMemory}
-              onChange={handleChange}
-              name="sendMemory"
-              />
-              }
-              label="Send Memory"
-              />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Send Key</InputLabel>
-            <Select
-              name="sendKey" 
-              value={settings.sendKey}
-              onChange={handleChange}
-              >
-              {/* Enter, Ctrl + Enter, Shift + Enter, Alt + Enter, Meta + Enter */}
-              <MenuItem value="enter">Enter</MenuItem>
-              <MenuItem value="controlEnter">Ctrl + Enter</MenuItem>
-              <MenuItem value="shiftEnter">Shift + Enter</MenuItem>
-              <MenuItem value="altEnter">Alt + Enter</MenuItem>
-              <MenuItem value="metaEnter">Meta + Enter</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Theme</InputLabel>
-            <Select
-              name="theme" 
-              value={settings.theme}
-              onChange={handleChange}
-              >
-              <MenuItem value="light">Light</MenuItem>
-              <MenuItem value="dark">Dark</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Font Size</InputLabel>
-            <TextField
-              type="number"
-              name="fontSize"
-              value={settings.fontSize}
-              onChange={handleChange}
-              inputProps={{ step: 1, min: 1 }}
-              />
-          </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-              checked={settings.autoGenerateTitle}
-              onChange={handleChange}
-              name="autoGenerateTitle"
-              />
-              }
-              label="Auto Generate Title"
-              />
-          <FormControlLabel
-            control={
-              <Switch
-              checked={settings.sendPreviewBubble}
-              onChange={handleChange}
-              name="sendPreviewBubble"
-              />
-              }
-              label="Send Preview Bubble"
-              />
-          <FormControlLabel
-            control={
-              <Switch
-              checked={settings.hideBuiltinTemplates}
-              onChange={handleChange}
-              name="hideBuiltinTemplates"
-              />
-              }
-              label="Hide Builtin Templates"
-              />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.disableAutoCompletion}
-                onChange={handleChange}
-                name="disableAutoCompletion"
-                />
-                }
-                label="Disable Auto-Completion"
-                />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Cache Type</InputLabel>
-            <Select
-              name="cacheType"
-              value={settings.cacheType}
-              onChange={handleChange}
-            >
-              <MenuItem value="IndexDB">IndexDB</MenuItem>
-              <MenuItem value="CacheAPI">Cache API</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Logging Level</InputLabel>
-            <Select
-              name="loggingLevel"
-              value={settings.loggingLevel}
-              onChange={handleChange}
-            >
-              <MenuItem value="debug">Debug</MenuItem>
-              <MenuItem value="info">Info</MenuItem>
-              <MenuItem value="warn">Warn</MenuItem>
-              <MenuItem value="error">Error</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
+        </DialogContent> 
         <div className="mt-4">
           <Button
             variant="contained"
@@ -260,7 +156,7 @@ const Settings = ({open,onClose,onSave,onCancel,dispatch, clearAllData,settings}
           <Button onClick={handleSave} color="primary">save</Button>
         </DialogActions> */}
       </Dialog>
-          </div>
+    </div>
   )
 }
 
