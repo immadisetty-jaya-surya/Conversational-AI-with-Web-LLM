@@ -119,7 +119,7 @@ const Chat = () => {
         setInitProgress('model loaded successfully')
       } catch (error) {
         console.error("Failed ot load the model",error);
-        setInitProgress('Failed to load the model')
+        setInitProgress('Failedd to load the model')
       }
       setIsLoading(false)
     },[selectedModel,settings]);
